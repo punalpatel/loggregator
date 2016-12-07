@@ -16,6 +16,10 @@ packages:
 - loggregator_common
 - doppler
 
+provides:
+- name: doppler
+  type: doppler
+
 properties:
   doppler.zone:
     description: Zone of the doppler server

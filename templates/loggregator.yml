@@ -205,6 +205,58 @@ instance_groups:
     release: loggregator
     properties: *2
 
+- name: doppler-again
+  azs:
+  - z1
+  instances: "((doppler_instances))"
+  persistent_disk_type: "((doppler_disk_type))"
+  vm_type: "((doppler_vm_type))"
+  stemcell: default
+  networks:
+  - name: "((loggregator_network_name))"
+  jobs:
+  - name: consul_agent
+    release: consul
+    properties:
+      consul:
+        agent:
+          mode: client
+          domain: cf.internal
+          servers: *3
+          services:
+            doppler: {}
+        require_ssl: "((consul_require_ssl))"
+        encrypt_keys: "((consul_encrypt_keys))"
+        agent_cert: "((consul_agent_cert))"
+        agent_key: "((consul_agent_agent_key))"
+        ca_cert: "((consul_agent_ca_cert))"
+        server_cert: "((consul_agent_server_cert))"
+        server_key: "((consul_agent_server_key))"
+  - name: doppler
+    release: loggregator
+    properties:
+      doppler:
+        etcd:
+          client_cert: "((etcd_client_cert))"
+          client_key: "((etcd_client_key))"
+        syslog_skip_cert_verify: true
+      loggregator:
+        tls:
+          ca_cert: "((loggregator_tls_ca_cert))"
+          doppler:
+            cert: "((loggregator_tls_doppler_cert))"
+            key: "((loggregator_tls_doppler_key))"
+        etcd:
+          require_ssl: "((etcd_require_ssl))"
+          ca_cert: "((etcd_ca_cert))"
+          machines: "((etcd_machines))"
+      doppler_endpoint:
+        shared_secret: "((dropsonde_shared_secret))"
+  - name: metron_agent
+    release: loggregator
+    properties: *2
+
+
 - name: log-api
   azs:
   - z1
@@ -257,6 +309,8 @@ instance_groups:
           machines: "((etcd_machines))"
       ssl:
         skip_cert_verify: "((skip_ssl_verify))"
+    consumes:
+      doppler: nil
   - name: metron_agent
     release: loggregator
     properties: *2
