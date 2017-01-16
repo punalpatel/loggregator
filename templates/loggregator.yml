@@ -71,10 +71,10 @@ instance_groups:
         shared_secret: "((dropsonde_shared_secret))"
       loggregator:
         tls:
-          ca_cert: "((loggregator_tls_ca_cert))"
+          ca_cert: "((loggregator_metron.ca))"
           metron:
-            cert: "((metron_agent_tls_client_cert))"
-            key: "((metron_agent_tls_client_key))"
+            cert: "((loggregator_metron.certificate))"
+            key: "((loggregator_metron.private_key))"
         etcd:
           require_ssl: true
           ca_cert: "((etcd_client.ca))"
@@ -236,9 +236,9 @@ instance_groups:
         syslog_skip_cert_verify: true
       loggregator:
         tls:
-          ca_cert: "((loggregator_tls_ca_cert))"
+          ca_cert: "((loggregator_doppler.ca))"
           doppler:
-            cert: "((loggregator_tls_doppler_cert))"
+            cert: "((loggregator_doppler.certificate))"
             key: "((loggregator_doppler.private_key))"
         etcd:
           require_ssl: true
@@ -310,6 +310,8 @@ instance_groups:
     serial: true
 
 variables:
+- name: dropsonde_shared_secret
+  type: password
 - name: loggregator_ca
   type: certificate
   options:
@@ -326,6 +328,13 @@ variables:
   options:
     ca: loggregator_ca
     common_name: trafficcontroller
+    ext_key_usage:
+    - client_auth
+- name: loggregator_metron
+  type: certificate
+  options:
+    ca: loggregator_ca
+    common_name: metron
     ext_key_usage:
     - client_auth
 - name: etcd_ca
