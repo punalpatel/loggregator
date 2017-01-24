@@ -28,7 +28,7 @@ var _ = Describe("EtcdSyslogDrainStore", func() {
 
 	Describe("UpdateDrains", func() {
 		It("writes drain urls to the store adapter", func() {
-			appDrainUrlMap := map[syslog_drain_binder.AppID][]syslog_drain_binder.DrainURL{
+			appDrainUrlMap := map[string][]string{
 				"app-id": {"url1", "url2"},
 			}
 
@@ -44,7 +44,7 @@ var _ = Describe("EtcdSyslogDrainStore", func() {
 		})
 
 		It("sets TTL on the app node if there are drain changes", func() {
-			appDrainUrlMap := map[syslog_drain_binder.AppID][]syslog_drain_binder.DrainURL{
+			appDrainUrlMap := map[string][]string{
 				"app-id": {"url1"},
 			}
 			syslogDrainStore.UpdateDrains(appDrainUrlMap)
@@ -55,7 +55,7 @@ var _ = Describe("EtcdSyslogDrainStore", func() {
 		It("returns an error if adapter.SetMulti fails", func() {
 			fakeError := errors.New("fake error")
 			fakeStoreAdapter.SetErrInjector = fakestoreadapter.NewFakeStoreAdapterErrorInjector(".*", fakeError)
-			appDrainUrlMap := map[syslog_drain_binder.AppID][]syslog_drain_binder.DrainURL{
+			appDrainUrlMap := map[string][]string{
 				"app-id": {"url1"},
 			}
 			err := syslogDrainStore.UpdateDrains(appDrainUrlMap)
@@ -63,7 +63,7 @@ var _ = Describe("EtcdSyslogDrainStore", func() {
 		})
 
 		It("does not store drain nodes if they have an empty URL", func() {
-			appDrainUrlMap := map[syslog_drain_binder.AppID][]syslog_drain_binder.DrainURL{
+			appDrainUrlMap := map[string][]string{
 				"app-id": {" ", "", "\t"},
 			}
 			syslogDrainStore.UpdateDrains(appDrainUrlMap)
@@ -102,11 +102,11 @@ func (adapter *FakeStoreAdapter) SetMulti(nodes []storeadapter.StoreNode) error 
 	return adapter.FakeStoreAdapter.SetMulti(nodes)
 }
 
-func appKey(appId syslog_drain_binder.AppID) string {
+func appKey(appId string) string {
 	return fmt.Sprintf("/loggregator/services/%s", appId)
 }
 
-func drainKey(appId syslog_drain_binder.AppID, drainUrl syslog_drain_binder.DrainURL) string {
+func drainKey(appId string, drainUrl string) string {
 	hash := sha1.Sum([]byte(drainUrl))
 	return fmt.Sprintf("%s/%x", appKey(appId), hash)
 }

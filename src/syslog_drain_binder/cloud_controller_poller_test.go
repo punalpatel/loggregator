@@ -172,21 +172,21 @@ func patchDefaultTimeout(t time.Duration) func() {
 }
 
 type appEntry struct {
-	appID syslog_drain_binder.AppID
-	urls  []syslog_drain_binder.DrainURL
+	appID string
+	urls  []string
 }
 
 var appDrains = []appEntry{
-	{appID: "app0", urls: []syslog_drain_binder.DrainURL{"urlA"}},
-	{appID: "app1", urls: []syslog_drain_binder.DrainURL{"urlB"}},
-	{appID: "app2", urls: []syslog_drain_binder.DrainURL{"urlA", "urlC"}},
-	{appID: "app3", urls: []syslog_drain_binder.DrainURL{"urlA", "urlD", "urlE"}},
-	{appID: "app4", urls: []syslog_drain_binder.DrainURL{"urlA"}},
-	{appID: "app5", urls: []syslog_drain_binder.DrainURL{"urlA"}},
-	{appID: "app6", urls: []syslog_drain_binder.DrainURL{"urlA"}},
-	{appID: "app7", urls: []syslog_drain_binder.DrainURL{"urlA"}},
-	{appID: "app8", urls: []syslog_drain_binder.DrainURL{"urlA"}},
-	{appID: "app9", urls: []syslog_drain_binder.DrainURL{"urlA"}},
+	{appID: "app0", urls: []string{"urlA"}},
+	{appID: "app1", urls: []string{"urlB"}},
+	{appID: "app2", urls: []string{"urlA", "urlC"}},
+	{appID: "app3", urls: []string{"urlA", "urlD", "urlE"}},
+	{appID: "app4", urls: []string{"urlA"}},
+	{appID: "app5", urls: []string{"urlA"}},
+	{appID: "app6", urls: []string{"urlA"}},
+	{appID: "app7", urls: []string{"urlA"}},
+	{appID: "app8", urls: []string{"urlA"}},
+	{appID: "app9", urls: []string{"urlA"}},
 }
 
 type fakeCC struct {
@@ -226,12 +226,12 @@ func buildResponse(start int, end int) []byte {
 	var r jsonResponse
 	if start >= 10 {
 		r = jsonResponse{
-			Results: make(map[syslog_drain_binder.AppID][]syslog_drain_binder.DrainURL),
+			Results: make(map[string][]string),
 			NextId:  nil,
 		}
 	} else {
 		r = jsonResponse{
-			Results: make(map[syslog_drain_binder.AppID][]syslog_drain_binder.DrainURL),
+			Results: make(map[string][]string),
 			NextId:  &end,
 		}
 
@@ -245,6 +245,6 @@ func buildResponse(start int, end int) []byte {
 }
 
 type jsonResponse struct {
-	Results map[syslog_drain_binder.AppID][]syslog_drain_binder.DrainURL `json:"results"`
-	NextId  *int                                                         `json:"next_id"`
+	Results map[string][]string `json:"results"`
+	NextId  *int                `json:"next_id"`
 }

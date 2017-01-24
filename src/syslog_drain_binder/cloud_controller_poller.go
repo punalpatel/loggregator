@@ -39,8 +39,8 @@ func Poll(
 	password string,
 	batchSize int,
 	options ...func(*PollOptions),
-) (map[AppID][]DrainURL, error) {
-	drainURLs := make(map[AppID][]DrainURL)
+) (map[string][]string, error) {
+	drainURLs := make(map[string][]string)
 	nextID := 0
 
 	opts := PollOptions{
@@ -105,8 +105,8 @@ func pollAndDecode(client *http.Client, request *http.Request) (*cloudController
 }
 
 type cloudControllerResponse struct {
-	Results map[AppID][]DrainURL `json:"results"`
-	NextID  *int                 `json:"next_id"`
+	Results map[string][]string `json:"results"`
+	NextID  *int                `json:"next_id"`
 }
 
 func buildUrl(baseURL string, batchSize int, nextID int) string {
