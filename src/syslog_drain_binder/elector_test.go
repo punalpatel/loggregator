@@ -1,8 +1,7 @@
-package elector_test
+package main_test
 
 import (
 	"errors"
-	"syslog_drain_binder/elector"
 	"time"
 
 	"github.com/cloudfoundry/storeadapter"
@@ -10,6 +9,8 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	syslog_drain_binder "syslog_drain_binder"
 )
 
 var _ = Describe("Elector", func() {
@@ -21,16 +22,16 @@ var _ = Describe("Elector", func() {
 
 	Context("at initialization", func() {
 		It("connects to the store", func() {
-			elector.NewElector("name", fakeStore, 1*time.Millisecond)
+			syslog_drain_binder.NewElector("name", fakeStore, 1*time.Millisecond)
 			Expect(fakeStore.DidConnect).To(BeTrue())
 		})
 	})
 
 	Describe("RunForElection", func() {
-		var candidate *elector.Elector
+		var candidate *syslog_drain_binder.Elector
 
 		BeforeEach(func() {
-			candidate = elector.NewElector("name", fakeStore, time.Second)
+			candidate = syslog_drain_binder.NewElector("name", fakeStore, time.Second)
 		})
 
 		It("makes a bid to become leader", func() {
@@ -93,7 +94,7 @@ var _ = Describe("Elector", func() {
 	})
 
 	Describe("StayAsLeader", func() {
-		var candidate *elector.Elector
+		var candidate *syslog_drain_binder.Elector
 
 		BeforeEach(func() {
 			fakeStore.Create(storeadapter.StoreNode{
@@ -104,7 +105,7 @@ var _ = Describe("Elector", func() {
 
 		Context("when already leader", func() {
 			It("maintains leadership of cluster if successful", func() {
-				candidate = elector.NewElector("candidate1", fakeStore, time.Second)
+				candidate = syslog_drain_binder.NewElector("candidate1", fakeStore, time.Second)
 
 				err := candidate.StayAsLeader()
 				Expect(err).NotTo(HaveOccurred())
@@ -118,7 +119,7 @@ var _ = Describe("Elector", func() {
 
 		Context("when not the cluster leader", func() {
 			It("returns an error", func() {
-				candidate = elector.NewElector("candidate2", fakeStore, time.Second)
+				candidate = syslog_drain_binder.NewElector("candidate2", fakeStore, time.Second)
 
 				err := candidate.StayAsLeader()
 				Expect(err).To(HaveOccurred())
@@ -126,7 +127,7 @@ var _ = Describe("Elector", func() {
 			})
 
 			It("does not replace the existing leader", func() {
-				candidate = elector.NewElector("candidate2", fakeStore, time.Second)
+				candidate = syslog_drain_binder.NewElector("candidate2", fakeStore, time.Second)
 
 				candidate.StayAsLeader()
 
@@ -137,10 +138,10 @@ var _ = Describe("Elector", func() {
 	})
 
 	Describe("Vacate", func() {
-		var candidate *elector.Elector
+		var candidate *syslog_drain_binder.Elector
 
 		BeforeEach(func() {
-			candidate = elector.NewElector("candidate1", fakeStore, time.Second)
+			candidate = syslog_drain_binder.NewElector("candidate1", fakeStore, time.Second)
 			candidate.RunForElection()
 		})
 

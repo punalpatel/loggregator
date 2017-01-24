@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"plumbing"
 	"time"
-
-	"syslog_drain_binder/shared_types"
 )
 
 // PollOptions contains the options for the Poll function.
@@ -41,8 +39,8 @@ func Poll(
 	password string,
 	batchSize int,
 	options ...func(*PollOptions),
-) (map[shared_types.AppID][]shared_types.DrainURL, error) {
-	drainURLs := make(map[shared_types.AppID][]shared_types.DrainURL)
+) (map[AppID][]DrainURL, error) {
+	drainURLs := make(map[AppID][]DrainURL)
 	nextID := 0
 
 	opts := PollOptions{
@@ -107,8 +105,8 @@ func pollAndDecode(client *http.Client, request *http.Request) (*cloudController
 }
 
 type cloudControllerResponse struct {
-	Results map[shared_types.AppID][]shared_types.DrainURL `json:"results"`
-	NextID  *int                                           `json:"next_id"`
+	Results map[AppID][]DrainURL `json:"results"`
+	NextID  *int                 `json:"next_id"`
 }
 
 func buildUrl(baseURL string, batchSize int, nextID int) string {

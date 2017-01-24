@@ -1,4 +1,4 @@
-package etcd_syslog_drain_store
+package main
 
 import (
 	"crypto/sha1"
@@ -6,8 +6,6 @@ import (
 	"log"
 	"strings"
 	"time"
-
-	"syslog_drain_binder/shared_types"
 
 	"github.com/cloudfoundry/storeadapter"
 )
@@ -24,7 +22,7 @@ func NewEtcdSyslogDrainStore(storeAdapter storeadapter.StoreAdapter, ttl time.Du
 	}
 }
 
-func (store *EtcdSyslogDrainStore) UpdateDrains(appDrainUrlMap map[shared_types.AppID][]shared_types.DrainURL) error {
+func (store *EtcdSyslogDrainStore) UpdateDrains(appDrainUrlMap map[AppID][]DrainURL) error {
 
 	for appId, drainUrls := range appDrainUrlMap {
 		err := store.updateAppDrains(appId, drainUrls)
@@ -36,7 +34,7 @@ func (store *EtcdSyslogDrainStore) UpdateDrains(appDrainUrlMap map[shared_types.
 	return nil
 }
 
-func (store *EtcdSyslogDrainStore) updateAppDrains(appId shared_types.AppID, drainUrls []shared_types.DrainURL) error {
+func (store *EtcdSyslogDrainStore) updateAppDrains(appId AppID, drainUrls []DrainURL) error {
 	var nodes []storeadapter.StoreNode
 
 	for _, drainUrl := range drainUrls {
@@ -66,11 +64,11 @@ func (store *EtcdSyslogDrainStore) updateAppDrains(appId shared_types.AppID, dra
 	return nil
 }
 
-func appKey(appId shared_types.AppID) string {
+func appKey(appId AppID) string {
 	return fmt.Sprintf("/loggregator/services/%s", appId)
 }
 
-func drainKey(appId shared_types.AppID, drainUrl shared_types.DrainURL) string {
+func drainKey(appId AppID, drainUrl DrainURL) string {
 	hash := sha1.Sum([]byte(drainUrl))
 	return fmt.Sprintf("%s/%x", appKey(appId), hash)
 }

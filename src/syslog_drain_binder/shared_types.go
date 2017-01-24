@@ -1,4 +1,4 @@
-package shared_types
+package main
 
 // AppID represents an app ID.
 type AppID string

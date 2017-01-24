@@ -1,4 +1,4 @@
-package elector
+package main
 
 import (
 	"log"

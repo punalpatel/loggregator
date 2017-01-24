@@ -1,11 +1,9 @@
-package etcd_syslog_drain_store_test
+package main_test
 
 import (
 	"crypto/sha1"
 	"errors"
 	"fmt"
-	"syslog_drain_binder/etcd_syslog_drain_store"
-	"syslog_drain_binder/shared_types"
 	"time"
 
 	"github.com/cloudfoundry/storeadapter"
@@ -13,22 +11,24 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	syslog_drain_binder "syslog_drain_binder"
 )
 
 var _ = Describe("EtcdSyslogDrainStore", func() {
 	var (
 		fakeStoreAdapter *FakeStoreAdapter
-		syslogDrainStore *etcd_syslog_drain_store.EtcdSyslogDrainStore
+		syslogDrainStore *syslog_drain_binder.EtcdSyslogDrainStore
 	)
 
 	BeforeEach(func() {
 		fakeStoreAdapter = NewFakeStoreAdapter()
-		syslogDrainStore = etcd_syslog_drain_store.NewEtcdSyslogDrainStore(fakeStoreAdapter, 10*time.Second)
+		syslogDrainStore = syslog_drain_binder.NewEtcdSyslogDrainStore(fakeStoreAdapter, 10*time.Second)
 	})
 
 	Describe("UpdateDrains", func() {
 		It("writes drain urls to the store adapter", func() {
-			appDrainUrlMap := map[shared_types.AppID][]shared_types.DrainURL{
+			appDrainUrlMap := map[syslog_drain_binder.AppID][]syslog_drain_binder.DrainURL{
 				"app-id": {"url1", "url2"},
 			}
 
@@ -44,7 +44,7 @@ var _ = Describe("EtcdSyslogDrainStore", func() {
 		})
 
 		It("sets TTL on the app node if there are drain changes", func() {
-			appDrainUrlMap := map[shared_types.AppID][]shared_types.DrainURL{
+			appDrainUrlMap := map[syslog_drain_binder.AppID][]syslog_drain_binder.DrainURL{
 				"app-id": {"url1"},
 			}
 			syslogDrainStore.UpdateDrains(appDrainUrlMap)
@@ -55,7 +55,7 @@ var _ = Describe("EtcdSyslogDrainStore", func() {
 		It("returns an error if adapter.SetMulti fails", func() {
 			fakeError := errors.New("fake error")
 			fakeStoreAdapter.SetErrInjector = fakestoreadapter.NewFakeStoreAdapterErrorInjector(".*", fakeError)
-			appDrainUrlMap := map[shared_types.AppID][]shared_types.DrainURL{
+			appDrainUrlMap := map[syslog_drain_binder.AppID][]syslog_drain_binder.DrainURL{
 				"app-id": {"url1"},
 			}
 			err := syslogDrainStore.UpdateDrains(appDrainUrlMap)
@@ -63,7 +63,7 @@ var _ = Describe("EtcdSyslogDrainStore", func() {
 		})
 
 		It("does not store drain nodes if they have an empty URL", func() {
-			appDrainUrlMap := map[shared_types.AppID][]shared_types.DrainURL{
+			appDrainUrlMap := map[syslog_drain_binder.AppID][]syslog_drain_binder.DrainURL{
 				"app-id": {" ", "", "\t"},
 			}
 			syslogDrainStore.UpdateDrains(appDrainUrlMap)
@@ -102,11 +102,11 @@ func (adapter *FakeStoreAdapter) SetMulti(nodes []storeadapter.StoreNode) error 
 	return adapter.FakeStoreAdapter.SetMulti(nodes)
 }
 
-func appKey(appId shared_types.AppID) string {
+func appKey(appId syslog_drain_binder.AppID) string {
 	return fmt.Sprintf("/loggregator/services/%s", appId)
 }
 
-func drainKey(appId shared_types.AppID, drainUrl shared_types.DrainURL) string {
+func drainKey(appId syslog_drain_binder.AppID, drainUrl syslog_drain_binder.DrainURL) string {
 	hash := sha1.Sum([]byte(drainUrl))
 	return fmt.Sprintf("%s/%x", appKey(appId), hash)
 }

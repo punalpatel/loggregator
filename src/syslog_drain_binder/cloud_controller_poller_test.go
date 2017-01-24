@@ -2,21 +2,20 @@ package main_test
 
 import (
 	"crypto/tls"
-	"net"
-	syslog_drain_binder "syslog_drain_binder"
-	"time"
-
 	"encoding/base64"
 	"encoding/json"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strconv"
 	"strings"
-	"syslog_drain_binder/shared_types"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	syslog_drain_binder "syslog_drain_binder"
 )
 
 var _ = Describe("CloudControllerPoller", func() {
@@ -173,21 +172,21 @@ func patchDefaultTimeout(t time.Duration) func() {
 }
 
 type appEntry struct {
-	appID shared_types.AppID
-	urls  []shared_types.DrainURL
+	appID syslog_drain_binder.AppID
+	urls  []syslog_drain_binder.DrainURL
 }
 
 var appDrains = []appEntry{
-	{appID: "app0", urls: []shared_types.DrainURL{"urlA"}},
-	{appID: "app1", urls: []shared_types.DrainURL{"urlB"}},
-	{appID: "app2", urls: []shared_types.DrainURL{"urlA", "urlC"}},
-	{appID: "app3", urls: []shared_types.DrainURL{"urlA", "urlD", "urlE"}},
-	{appID: "app4", urls: []shared_types.DrainURL{"urlA"}},
-	{appID: "app5", urls: []shared_types.DrainURL{"urlA"}},
-	{appID: "app6", urls: []shared_types.DrainURL{"urlA"}},
-	{appID: "app7", urls: []shared_types.DrainURL{"urlA"}},
-	{appID: "app8", urls: []shared_types.DrainURL{"urlA"}},
-	{appID: "app9", urls: []shared_types.DrainURL{"urlA"}},
+	{appID: "app0", urls: []syslog_drain_binder.DrainURL{"urlA"}},
+	{appID: "app1", urls: []syslog_drain_binder.DrainURL{"urlB"}},
+	{appID: "app2", urls: []syslog_drain_binder.DrainURL{"urlA", "urlC"}},
+	{appID: "app3", urls: []syslog_drain_binder.DrainURL{"urlA", "urlD", "urlE"}},
+	{appID: "app4", urls: []syslog_drain_binder.DrainURL{"urlA"}},
+	{appID: "app5", urls: []syslog_drain_binder.DrainURL{"urlA"}},
+	{appID: "app6", urls: []syslog_drain_binder.DrainURL{"urlA"}},
+	{appID: "app7", urls: []syslog_drain_binder.DrainURL{"urlA"}},
+	{appID: "app8", urls: []syslog_drain_binder.DrainURL{"urlA"}},
+	{appID: "app9", urls: []syslog_drain_binder.DrainURL{"urlA"}},
 }
 
 type fakeCC struct {
@@ -227,12 +226,12 @@ func buildResponse(start int, end int) []byte {
 	var r jsonResponse
 	if start >= 10 {
 		r = jsonResponse{
-			Results: make(map[shared_types.AppID][]shared_types.DrainURL),
+			Results: make(map[syslog_drain_binder.AppID][]syslog_drain_binder.DrainURL),
 			NextId:  nil,
 		}
 	} else {
 		r = jsonResponse{
-			Results: make(map[shared_types.AppID][]shared_types.DrainURL),
+			Results: make(map[syslog_drain_binder.AppID][]syslog_drain_binder.DrainURL),
 			NextId:  &end,
 		}
 
@@ -246,6 +245,6 @@ func buildResponse(start int, end int) []byte {
 }
 
 type jsonResponse struct {
-	Results map[shared_types.AppID][]shared_types.DrainURL `json:"results"`
-	NextId  *int                                           `json:"next_id"`
+	Results map[syslog_drain_binder.AppID][]syslog_drain_binder.DrainURL `json:"results"`
+	NextId  *int                                                         `json:"next_id"`
 }

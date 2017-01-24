@@ -6,11 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"syslog_drain_binder/config"
 	"time"
-
-	"syslog_drain_binder/elector"
-	"syslog_drain_binder/etcd_syslog_drain_store"
 
 	"signalmanager"
 
@@ -27,7 +23,7 @@ var (
 
 func main() {
 	flag.Parse()
-	conf, err := config.ParseConfig(*configFile)
+	conf, err := ParseConfig(*configFile)
 	if err != nil {
 		panic(err)
 	}
@@ -54,10 +50,10 @@ func main() {
 	}
 
 	updateInterval := time.Duration(conf.UpdateIntervalSeconds) * time.Second
-	politician := elector.NewElector(conf.InstanceName, adapter, updateInterval)
+	politician := NewElector(conf.InstanceName, adapter, updateInterval)
 
 	drainTTL := time.Duration(conf.DrainUrlTtlSeconds) * time.Second
-	store := etcd_syslog_drain_store.NewEtcdSyslogDrainStore(adapter, drainTTL)
+	store := NewEtcdSyslogDrainStore(adapter, drainTTL)
 
 	dumpChan := registerGoRoutineDumpSignalChannel()
 	ticker := time.NewTicker(updateInterval)
